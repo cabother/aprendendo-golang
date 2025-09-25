@@ -1,0 +1,10 @@
+services:
+  financialmanager-dev-db:
+    image: postgres:alpine
+    container_name: aula
+    environment:
+      POSTGRES_USER: aula
+      POSTGRES_PASSWORD: aula
+      POSTGRES_DB: auladatabase
+    ports:
+      - 5432:5432
