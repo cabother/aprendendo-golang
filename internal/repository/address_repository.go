@@ -2,6 +2,7 @@ package repository
 
 import (
 	"cabother/aula/internal/database"
+	"cabother/aula/internal/dto"
 	"cabother/aula/internal/models"
 	"fmt"
 )
@@ -55,4 +56,29 @@ func GetAddressByUserID(userID int64) ([]models.AddressModel, error) {
 	}
 
 	return Addresses, nil
+}
+func CreateAddressCep(address dto.CreateAddressApi) error {
+	banco, err := database.ConnectDB()
+	if err != nil {
+		return err
+	}
+
+	execution := `insert into via_cep(cep, street, neighborhood, city) 
+		values($1, $2, $3, $4)`
+
+	result, err := banco.Exec(execution, address.Cep, address.Street, address.Neighborhood, address.City)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, errRowsAffected := result.RowsAffected()
+	if errRowsAffected != nil {
+		return errRowsAffected
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("address not created")
+	}
+
+	return nil
 }

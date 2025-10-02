@@ -222,3 +222,22 @@ func RemoveUsersByLikeName(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("user like name %s removido", x)})
 }
+
+//http://google.com?name=renato -> Query Param
+//http://google.com/name/renato -> Path Param
+
+func RandomCep(c *gin.Context) {
+	x := c.Param("number")
+	numero, err := strconv.Atoi(x)
+
+	if err != nil {
+		fmt.Println("Erro ao converter a string:", err)
+		return
+	}
+	err = service.RandomCep(numero)
+	if err != nil {
+		res := gin.H{"message": fmt.Sprintf("error search the cep", x), "error": err.Error()}
+		c.JSON(http.StatusInternalServerError, res)
+		return
+	}
+}

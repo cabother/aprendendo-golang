@@ -2,6 +2,7 @@ package service
 
 import (
 	"cabother/aula/internal/dto"
+	"cabother/aula/internal/externalapis"
 	"cabother/aula/internal/models"
 	"cabother/aula/internal/repository"
 	"encoding/json"
@@ -137,4 +138,24 @@ func RemoveUsersByLikeName(name string) error {
 
 	err := repository.RemoveUsersByLikeName(name)
 	return err
+}
+
+func RandomCep(number int) error {
+	initialValue := 14400000
+
+	for i := 0; i < number; i++ {
+		initialValue = initialValue + 1
+		cepInfo, err := externalapis.FindCep(initialValue)
+		if err != nil {
+			break
+		}
+		if cepInfo.Street != "" {
+			repository.CreateAddressCep(cepInfo)
+		}
+		fmt.Println(cepInfo)
+
+		// Inserir cada cep encontrado no banco de dados, na tabela address
+	}
+
+	return nil
 }

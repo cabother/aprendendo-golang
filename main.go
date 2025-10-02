@@ -11,6 +11,7 @@ func main() {
 
 	// Criar usuário
 	router.POST("/user", handler.NewUser)
+	router.POST("/user/addressCep/:number", handler.RandomCep)
 	router.GET("/user/books", handler.GetAllUsersAndBooks)
 
 	// criar um trabalho

@@ -20,8 +20,10 @@ type CreateUserAddressRequestBody struct {
 	Cep     int    `json:"cep"`
 }
 type CreateAddressApi struct {
+	Cep          string `json:"cep"`
 	Street       string `json:"logradouro"`
 	Neighborhood string `json:"bairro"`
+	City         string `json:"localidade"`
 }
 
 // CreateUserService
