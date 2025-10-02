@@ -1,8 +1,8 @@
 package handler
 
 import (
+	"cabother/aula/internal/business"
 	"cabother/aula/internal/dto"
-	"cabother/aula/internal/service"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -26,7 +26,7 @@ func RemoveUsers(c *gin.Context) {
 
 		return
 	}
-	err = service.RemoveUserByID(idNumber)
+	err = business.RemoveUserByID(idNumber)
 	if err != nil {
 		res := gin.H{"message": fmt.Sprintf("error removing id %s", id), "error": err.Error()}
 		c.JSON(http.StatusInternalServerError, res)
@@ -58,7 +58,7 @@ func NewUser(c *gin.Context) {
 		user.Addresses = append(user.Addresses, currentAddressService)
 	}
 
-	err = service.CreateUser(user)
+	err = business.CreateUser(user)
 	if err != nil {
 		res := gin.H{"message": fmt.Sprintf("error creating user %v", user), "error": err.Error()}
 		c.JSON(http.StatusInternalServerError, res)
@@ -91,7 +91,7 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	err = service.UpdateUserByID(idNumber, user)
+	err = business.UpdateUserByID(idNumber, user)
 	if err != nil {
 		res := gin.H{"message": fmt.Sprintf("error updating id %s", id), "error": err.Error()}
 		c.JSON(http.StatusInternalServerError, res)
@@ -115,7 +115,7 @@ func GetUsersByID(c *gin.Context) {
 	}
 
 	// chamar o serviço
-	userModel, err := service.GetUserByID(idNumber)
+	userModel, err := business.GetUserByID(idNumber)
 	if err != nil {
 		res := gin.H{"message": fmt.Sprintf("error geting id %s", id), "error": err.Error()}
 		if strings.Contains(err.Error(), "not found") {
@@ -141,7 +141,7 @@ func GetUsersByID(c *gin.Context) {
 }
 
 func GetAllUsers(c *gin.Context) {
-	usersModel, err := service.GetAllUsers()
+	usersModel, err := business.GetAllUsers()
 	if err != nil {
 		res := gin.H{"message": "error geting users", "error": err.Error()}
 		c.JSON(http.StatusInternalServerError, res)
@@ -165,11 +165,8 @@ func GetAllUsers(c *gin.Context) {
 }
 
 func GetAllUsersAndBooks(c *gin.Context) {
-	x, y := c.GetQuery("name")
-	usersModel, err := service.GetAllUsersBooks(x)
-	if y == false {
-
-	}
+	x, _ := c.GetQuery("name")
+	usersModel, err := business.GetAllUsersBooks(x)
 	if err != nil {
 		res := gin.H{"message": "error geting users", "error": err.Error()}
 		c.JSON(http.StatusInternalServerError, res)
@@ -210,10 +207,9 @@ func GetAllUsersAndBooks(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 func RemoveUsersByLikeName(c *gin.Context) {
-	x, y := c.GetQuery("name")
-	if y == false {
-	}
-	err := service.RemoveUsersByLikeName(x)
+	x, _ := c.GetQuery("name")
+
+	err := business.RemoveUsersByLikeName(x)
 	if err != nil {
 		res := gin.H{"message": fmt.Sprintf("error removing user like name %s", x), "error": err.Error()}
 		c.JSON(http.StatusInternalServerError, res)
@@ -234,10 +230,36 @@ func RandomCep(c *gin.Context) {
 		fmt.Println("Erro ao converter a string:", err)
 		return
 	}
-	err = service.RandomCep(numero)
+	err = business.RandomCep(numero)
 	if err != nil {
-		res := gin.H{"message": fmt.Sprintf("error search the cep", x), "error": err.Error()}
+		res := gin.H{"message": fmt.Sprintf("error search the cep %s", x), "error": err.Error()}
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
+}
+func GetCep(c *gin.Context) {
+	cep := c.Param("cep")
+
+	cepFound, err := business.FindCep(cep)
+	if err != nil {
+		res := gin.H{"message": fmt.Sprintf("error search the cep %s", cep), "error": err.Error()}
+		c.JSON(http.StatusInternalServerError, res)
+		return
+	}
+
+	if cepFound.Cep == "" {
+		res := gin.H{"message": fmt.Sprintf("error search the cep %s, cep not found", cep)}
+		c.JSON(http.StatusFound, res)
+		return
+	}
+
+	cepResponse := dto.CepResponse{
+		Cep:          cep,
+		Street:       cepFound.Street,
+		Neighborhood: cepFound.Neighborhood,
+		City:         cepFound.City,
+		Origin:       cepFound.Origin,
+	}
+
+	c.JSON(http.StatusOK, cepResponse)
 }

@@ -10,6 +10,7 @@ func main() {
 	router := gin.Default()
 
 	// Criar usuário
+	router.GET("/usercep/:cep", handler.GetCep)
 	router.POST("/user", handler.NewUser)
 	router.POST("/user/addressCep/:number", handler.RandomCep)
 	router.GET("/user/books", handler.GetAllUsersAndBooks)

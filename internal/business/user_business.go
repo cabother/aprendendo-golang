@@ -1,4 +1,4 @@
-package service
+package business
 
 import (
 	"cabother/aula/internal/dto"
@@ -145,7 +145,7 @@ func RandomCep(number int) error {
 
 	for i := 0; i < number; i++ {
 		initialValue = initialValue + 1
-		cepInfo, err := externalapis.FindCep(initialValue)
+		cepInfo, err := externalapis.FindCep(fmt.Sprintf("%d", initialValue))
 		if err != nil {
 			break
 		}
@@ -158,4 +158,50 @@ func RandomCep(number int) error {
 	}
 
 	return nil
+}
+
+func FindCep(cep string) (models.CepModel, error) {
+	ceps, err := repository.GetCep(cep)
+	if err != nil {
+		return models.CepModel{}, err
+	}
+
+	if len(ceps) > 0 {
+		response := ceps[0]
+		response.Origin = "database"
+
+		return response, nil
+	}
+
+	externalCepFound, err := externalapis.FindCep(cep)
+	if err != nil {
+		return models.CepModel{}, err
+	}
+
+	if externalCepFound.Cep == "" {
+		return models.CepModel{}, fmt.Errorf("error search the cep %s, cep not found", cep)
+	}
+
+	address := dto.CreateAddressApi{
+		Cep:          cep,
+		Street:       externalCepFound.Street,
+		Neighborhood: externalCepFound.Neighborhood,
+		City:         externalCepFound.City,
+	}
+
+	err = repository.CreateAddressCep(address)
+	if err != nil {
+		return models.CepModel{}, err
+	}
+
+	response := models.CepModel{
+		Cep:          externalCepFound.Cep,
+		Street:       externalCepFound.Street,
+		Neighborhood: externalCepFound.Neighborhood,
+		City:         externalCepFound.City,
+		Origin:       "api-externa",
+	}
+
+	return response, err
+
 }

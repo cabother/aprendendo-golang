@@ -14,3 +14,11 @@ type AddressModel struct {
 func (a AddressModel) GetFullAddress() string {
 	return fmt.Sprintf("%s, %s, %s, %s", a.Street, a.Number, a.Neighborhood, a.Country)
 }
+
+type CepModel struct {
+	Cep          string
+	Street       string
+	Neighborhood string
+	City         string
+	Origin       string
+}

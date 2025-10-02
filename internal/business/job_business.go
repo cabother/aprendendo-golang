@@ -1,4 +1,4 @@
-package service
+package business
 
 import (
 	"cabother/aula/internal/dto"

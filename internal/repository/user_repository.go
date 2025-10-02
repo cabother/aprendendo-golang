@@ -168,3 +168,25 @@ func RemoveUsersByLikeName(name string) error {
 
 	return nil
 }
+func GetCep(x string) ([]models.CepModel, error) {
+	execution := `select cep,street, neighborhood, city from via_cep where cep = $1`
+	banco, _ := database.ConnectDB()
+	result, err := banco.Query(execution, x)
+	if err != nil {
+		return []models.CepModel{}, err
+
+	}
+
+	var ceps []models.CepModel
+	for result.Next() {
+		var cep models.CepModel
+		err = result.Scan(&cep.Cep, &cep.Street, &cep.Neighborhood, &cep.City)
+		if err != nil {
+			return []models.CepModel{}, err
+		}
+
+		ceps = append(ceps, cep)
+	}
+
+	return ceps, nil
+}

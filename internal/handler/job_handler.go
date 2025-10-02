@@ -1,8 +1,8 @@
 package handler
 
 import (
+	"cabother/aula/internal/business"
 	"cabother/aula/internal/dto"
-	"cabother/aula/internal/service"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -27,7 +27,7 @@ func NewJob(c *gin.Context) {
 		UserID:   receivedBody.UserID,
 	}
 
-	err = service.CreateJob(job)
+	err = business.CreateJob(job)
 	if err != nil {
 		res := gin.H{"message": fmt.Sprintf("erro registrando o trabalho %v", job), "error": err.Error()}
 		c.JSON(http.StatusInternalServerError, res)
@@ -39,7 +39,7 @@ func NewJob(c *gin.Context) {
 func RemoveJob(c *gin.Context) {
 	jobID := c.Param("id")
 
-	err := service.DeleteJob(jobID)
+	err := business.DeleteJob(jobID)
 	if err != nil {
 		res := gin.H{"message": fmt.Sprintf("erro saindo do trabalho %v", jobID), "error": err.Error()}
 		c.JSON(http.StatusInternalServerError, res)
@@ -51,7 +51,7 @@ func RemoveJob(c *gin.Context) {
 
 func GetAllJobs(c *gin.Context) {
 
-	JobModel, err := service.GetAllJobs()
+	JobModel, err := business.GetAllJobs()
 	if err != nil {
 		resp := gin.H{"message": "error getint the jobs", "error": err.Error()}
 		c.JSON(http.StatusInternalServerError, resp)
@@ -84,7 +84,7 @@ func GetJobByID(c *gin.Context) {
 		return
 	}
 
-	JobModel, err := service.GetJobByID(idNumber)
+	JobModel, err := business.GetJobByID(idNumber)
 	if err != nil {
 		res := gin.H{"message": fmt.Sprintf("error geting id %s", id), "error": err.Error()}
 		if strings.Contains(err.Error(), "not found") {
@@ -129,7 +129,7 @@ func UpdateJobByID(c *gin.Context) {
 		return
 	}
 
-	err = service.UpdateJobByID(idNumber, job)
+	err = business.UpdateJobByID(idNumber, job)
 	if err != nil {
 		res := gin.H{"message": fmt.Sprintf("error updating id %s", jobID), "error": err.Error()}
 		c.JSON(http.StatusInternalServerError, res)
