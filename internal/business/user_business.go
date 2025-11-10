@@ -5,10 +5,7 @@ import (
 	"cabother/aula/internal/externalapis"
 	"cabother/aula/internal/models"
 	"cabother/aula/internal/repository"
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"time"
 )
 
@@ -37,25 +34,40 @@ func CreateUser(userService dto.CreateUserService) error {
 		Status:   userService.Status,
 	}
 
+	// Cria o usuario
 	lastUserID, err := repository.CreateUser(userModel)
 	if err != nil {
 		return fmt.Errorf("error creating user name %s", userService.Name)
 	}
+
+	// Cria o doguinho
+	respDog, err := externalapis.GetDogImage()
+	if err != nil {
+		return err
+	}
+
+	dogModel := models.DogModel{
+		Name:   respDog.Name,
+		UserID: lastUserID,
+		Photo:  respDog.URL,
+		DogID:  int64(respDog.Id),
+	}
+
+	err = repository.CreateDog(dogModel)
+	if err != nil {
+		return err
+	}
+
+	// Cria os endereços
 	for _, address := range userService.Addresses {
-		url := fmt.Sprintf("https://viacep.com.br/ws/%d/json/", address.Cep)
-		resp, err := http.Get(url)
+		resp, err := externalapis.FindCep(fmt.Sprintf("%d", address.Cep))
 		if err != nil {
-			return fmt.Errorf("error with cep")
+			return err
 		}
-		Body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return fmt.Errorf("error with cep")
-		}
-		MyType := dto.CreateAddressApi{}
-		json.Unmarshal(Body, &MyType)
+
 		addressModel := models.AddressModel{}
-		addressModel.Street = MyType.Street
-		addressModel.Neighborhood = MyType.Neighborhood
+		addressModel.Street = resp.Street
+		addressModel.Neighborhood = resp.Neighborhood
 		addressModel.Number = address.Number
 		addressModel.Type = address.Type
 		addressModel.Country = address.Country

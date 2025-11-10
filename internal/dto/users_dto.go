@@ -33,6 +33,19 @@ type CreateUserService struct {
 	BornDate  time.Time
 	Status    bool
 	Addresses []CreateAddressService
+	Dogs      []CreateDogService
+}
+type CreateDogService struct {
+	UserID int64
+	DogID  int64
+	Name   string
+	Photo  string
+}
+type CreateDogApi struct {
+	UserID int64
+	DogID  int64
+	Name   string
+	Photo  string
 }
 
 type CreateAddressService struct {

@@ -64,7 +64,9 @@ func NewUser(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, res)
 		return
 	}
+	if err == nil {
 
+	}
 	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("user %v criado", user)})
 }
 func UpdateUser(c *gin.Context) {
